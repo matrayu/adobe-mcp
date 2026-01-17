@@ -1,4 +1,4 @@
-import logger
+from . import logger
 
 application = None
 socket_client = None

@@ -4,7 +4,6 @@ from .server import mcp
 
 def main():
     """Entry point for InDesign MCP server."""
-    import sys
-    mcp.run(sys.stdin.buffer, sys.stdout.buffer)
+    mcp.run(transport='stdio')
 
 __all__ = ["mcp", "main"]

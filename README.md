@@ -60,23 +60,7 @@ adobe-proxy
 
 ## Usage
 
-### Starting Individual MCP Servers
-
-```bash
-# Photoshop
-adobe-photoshop
-
-# Premiere Pro
-adobe-premiere
-
-# Illustrator (includes built-in proxy)
-adobe-illustrator
-
-# InDesign
-adobe-indesign
-```
-
-### Claude Desktop Configuration
+### Claude Desktop Configuration (Recommended)
 
 Add to your Claude desktop configuration:
 
@@ -98,6 +82,53 @@ Add to your Claude desktop configuration:
   }
 }
 ```
+
+### Daily Usage Workflow
+
+Each time you want to use Adobe MCP, follow these steps:
+
+1. **Start the Proxy Server** (Required - leave running)
+   ```bash
+   adobe-proxy
+   ```
+   Keep this terminal window open. The proxy must be running for any Adobe MCP commands to work.
+
+2. **Open Your Adobe Application** (e.g., Photoshop, Premiere Pro)
+
+3. **Load the UXP Plugin** (Required once per Adobe app session)
+   - Open Adobe UXP Developer Tools
+   - Find the plugin in your list (if previously added) and click "Load"
+   - If not added yet, see [UXP Plugin Installation](#uxp-plugin-installation) below
+   - Note: You'll need to reload the plugin each time you restart the Adobe app
+
+4. **Open Claude Desktop**
+   - MCP servers start automatically when Claude Desktop launches
+   - You should see the Adobe MCP tools available in Claude
+
+5. **Start Creating!**
+   - Use natural language to control your Adobe applications through Claude
+
+**Pro Tip**: Keep the proxy server running in a background terminal to avoid restarting it each time.
+
+### Manual MCP Server Startup (Advanced/Development)
+
+For testing or development, you can start MCP servers manually instead of through Claude Desktop:
+
+```bash
+# Photoshop
+adobe-photoshop
+
+# Premiere Pro
+adobe-premiere
+
+# Illustrator
+adobe-illustrator
+
+# InDesign
+adobe-indesign
+```
+
+Note: When using Claude Desktop, you don't need to start these manually - Claude Desktop starts them automatically based on your configuration.
 
 ### Example Prompts
 
@@ -147,9 +178,34 @@ adobe-mcp/
 
 ## Troubleshooting
 
-- **Plugin won't connect**: Ensure the proxy server is running on port 3001
-- **Commands fail**: Check that the UXP plugin is loaded and connected
-- **MCP server errors**: Verify Python dependencies are installed
+### Common Issues
+
+- **"No Adobe tools available in Claude"**
+  - Make sure the proxy server (`adobe-proxy`) is running
+  - Verify the UXP plugin is loaded in your Adobe app
+  - Check that your Claude Desktop configuration includes the Adobe MCP servers
+  - Restart Claude Desktop after configuration changes
+
+- **Plugin won't connect**
+  - Ensure the proxy server is running: `adobe-proxy`
+  - Verify it's running on port 3001 (check terminal output)
+  - Check that the UXP plugin shows "Connected" status in its panel
+  - Try reloading the UXP plugin in Adobe UXP Developer Tools
+
+- **Commands fail or timeout**
+  - Confirm the UXP plugin is loaded and showing as connected
+  - Check the proxy server terminal for error messages
+  - Verify the Adobe application is fully launched and responsive
+  - Try restarting the proxy server
+
+- **Port 3001 already in use**
+  - Find and stop the process using port 3001
+  - Or configure a different port in both the proxy server and MCP server configurations
+
+- **MCP server errors**
+  - Verify Python dependencies are installed: `pip install -e .`
+  - Check that Python 3.10+ is installed
+  - Look for error messages in Claude Desktop's MCP logs
 
 ## License
 
