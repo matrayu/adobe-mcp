@@ -482,6 +482,75 @@ def create_character_style(style_name: str, properties: dict):
     })
     return sendCommand(command)
 
+# Master Page Operations
+@mcp.tool()
+def add_page_numbers(position: str = "bottom_center", font_size: int = 11):
+    """
+    Adds automatic page numbering to the default master page.
+
+    Creates text frames on master pages with auto page number special character.
+
+    Args:
+        position: Page number position - "bottom_center", "bottom_outside", "top_center", "top_outside"
+        font_size: Font size for page numbers in points
+
+    Returns:
+        Dict with page number frame info
+    """
+    command = createCommand("addPageNumbers", {
+        "position": position,
+        "fontSize": font_size
+    })
+    return sendCommand(command)
+
+@mcp.tool()
+def add_running_header(header_text: str, position: str = "top_outside", apply_to: str = "both"):
+    """
+    Adds running headers to master pages.
+
+    Args:
+        header_text: Text for header (can include variables)
+        position: "top_left", "top_center", "top_right", "top_outside", "top_inside"
+        apply_to: "both", "left_only", "right_only"
+
+    Returns:
+        Dict with header frame info
+    """
+    command = createCommand("addRunningHeader", {
+        "headerText": header_text,
+        "position": position,
+        "applyTo": apply_to
+    })
+    return sendCommand(command)
+
+# Text Operations - Advanced
+@mcp.tool()
+def insert_formatted_paragraphs(text_frame_index: int, paragraphs: list, page_index: int = 0):
+    """
+    Inserts multiple paragraphs with different styles in one operation.
+
+    Efficiently adds formatted content without multiple API calls.
+
+    Args:
+        text_frame_index: Frame index on the page (0-based, page-specific)
+        paragraphs: List of dicts with 'text' and 'style' keys
+            Example: [
+                {"text": "CHAPTER 1", "style": "Chapter Title Large"},
+                {"text": "New York Harbor", "style": "Chapter Location Italic"},
+                {"text": "In the beginning...", "style": "Body First Drop"}
+            ]
+        page_index: Page index (0-based)
+
+    Returns:
+        Dict with insertion status and paragraph count
+    """
+    command = createCommand("insertFormattedParagraphs", {
+        "frameIndex": text_frame_index,
+        "paragraphs": paragraphs,
+        "pageIndex": page_index
+    })
+    return sendCommand(command)
+
 # Page Operations
 @mcp.tool()
 def add_page(location: str = "AT_END", reference_page: int = None):

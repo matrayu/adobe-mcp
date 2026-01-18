@@ -60,8 +60,19 @@ const createDocument = async (command) => {
     }
 
     const showingWindow = true
-    //Boolean showingWindow, DocumentPreset documentPreset, Object withProperties 
-    documents.add({showingWindow, documentPreferences})
+    //Boolean showingWindow, DocumentPreset documentPreset, Object withProperties
+    const doc = documents.add({showingWindow, documentPreferences})
+
+    // Return document info
+    return {
+        status: "SUCCESS",
+        documentName: doc.name,
+        pageCount: doc.pages.length,
+        pageWidth: parseFloat(doc.documentPreferences.pageWidth),
+        pageHeight: parseFloat(doc.documentPreferences.pageHeight),
+        facingPages: doc.documentPreferences.facingPages,
+        saved: false  // New document is unsaved
+    };
 }
 
 
