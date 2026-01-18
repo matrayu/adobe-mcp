@@ -119,33 +119,32 @@ const createTextFrame = async (command) => {
     // Validate bounds
     validateBounds(options.geometricBounds, page);
 
-    // Create frame
+    // Get frame count BEFORE adding new frame
+    const frameCountBefore = page.textFrames.length;
+
+    // Create frame (appends to end of collection)
     const textFrame = page.textFrames.add();
     textFrame.geometricBounds = options.geometricBounds;
 
-    // CRITICAL FIX: Ensure frame is committed to InDesign's object model
-    // Force a layout refresh to commit the frame before returning
-    try {
-        if (doc.layoutWindows && doc.layoutWindows.length > 0) {
-            const currentZoom = doc.layoutWindows[0].zoomPercentage;
-            doc.layoutWindows[0].zoomPercentage = currentZoom;  // Forces refresh
-        }
-    } catch (e) {
-        // Layout window operations may not be available in all contexts
-        // Continue anyway - frame should still be valid
-    }
+    // Set a unique label to identify this frame
+    const uniqueLabel = `mcp_frame_${Date.now()}_${Math.random()}`;
+    textFrame.label = uniqueLabel;
 
-    // Validate frame persists after creation
+    // Validate frame was created successfully
     if (!textFrame.isValid) {
         throw new Error("Frame creation failed - frame became invalid after creation");
     }
 
-    // Get the index AFTER ensuring frame is committed
-    const frames = page.textFrames.everyItem().getElements();
-    const frameIndex = frames.indexOf(textFrame);
+    // The new frame's index is the previous count (0-based, appended to end)
+    const frameIndex = frameCountBefore;
 
-    if (frameIndex === -1) {
-        throw new Error("Frame created but not found in page collection - layout refresh may be needed");
+    // Verify frame is accessible at expected index
+    const verifyFrame = page.textFrames.item(frameIndex);
+    if (!verifyFrame.isValid || verifyFrame.label !== uniqueLabel) {
+        throw new Error(
+            `Frame created but not accessible at expected index ${frameIndex}. ` +
+            `Page had ${frameCountBefore} frames before creation.`
+        );
     }
 
     return {
