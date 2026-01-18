@@ -319,6 +319,111 @@ const detectTextOverflow = async (command) => {
 };
 
 /**
+ * Remove duplicate and empty frames caused by PTF conflicts
+ */
+const removeDuplicateFrames = async (command) => {
+    const doc = app.activeDocument;
+
+    if (!doc) {
+        throw new Error("No active document");
+    }
+
+    const removalReport = [];
+    let totalRemoved = 0;
+
+    // Iterate through all document pages
+    const pages = doc.pages.everyItem().getElements();
+
+    for (let i = 0; i < pages.length; i++) {
+        const page = pages[i];
+        const frames = page.textFrames.everyItem().getElements();
+
+        if (frames.length === 0) {
+            continue;  // No frames on this page
+        }
+
+        const framesToKeep = [];
+        const framesToRemove = [];
+
+        // Identify duplicates and empty frames
+        for (let j = 0; j < frames.length; j++) {
+            const frame = frames[j];
+
+            // Check if frame is empty
+            const isEmpty = frame.contents.length === 0;
+
+            // Check if frame has same bounds as another frame on this page
+            let isDuplicate = false;
+            for (let k = 0; k < framesToKeep.length; k++) {
+                const existingFrame = framesToKeep[k];
+                const boundsMatch =
+                    frame.geometricBounds[0] === existingFrame.geometricBounds[0] &&
+                    frame.geometricBounds[1] === existingFrame.geometricBounds[1] &&
+                    frame.geometricBounds[2] === existingFrame.geometricBounds[2] &&
+                    frame.geometricBounds[3] === existingFrame.geometricBounds[3];
+
+                if (boundsMatch) {
+                    isDuplicate = true;
+                    break;
+                }
+            }
+
+            // Decide whether to keep or remove
+            if (isDuplicate) {
+                // If it's a duplicate, only keep it if the existing one is empty
+                // and this one has content
+                const existingIsEmpty = framesToKeep.some(f =>
+                    f.geometricBounds[0] === frame.geometricBounds[0] &&
+                    f.contents.length === 0
+                );
+
+                if (!isEmpty && existingIsEmpty) {
+                    // Remove the empty one, keep this one with content
+                    const emptyIndex = framesToKeep.findIndex(f =>
+                        f.geometricBounds[0] === frame.geometricBounds[0] &&
+                        f.contents.length === 0
+                    );
+                    if (emptyIndex !== -1) {
+                        framesToRemove.push(framesToKeep[emptyIndex]);
+                        framesToKeep.splice(emptyIndex, 1);
+                    }
+                    framesToKeep.push(frame);
+                } else {
+                    framesToRemove.push(frame);
+                }
+            } else {
+                framesToKeep.push(frame);
+            }
+        }
+
+        // Remove the identified frames
+        for (let j = 0; j < framesToRemove.length; j++) {
+            try {
+                framesToRemove[j].remove();
+                totalRemoved++;
+            } catch (e) {
+                // Frame might already be invalid
+            }
+        }
+
+        if (framesToRemove.length > 0) {
+            removalReport.push({
+                pageIndex: i,
+                framesRemoved: framesToRemove.length,
+                framesRemaining: framesToKeep.length
+            });
+        }
+    }
+
+    return {
+        status: "SUCCESS",
+        totalFramesRemoved: totalRemoved,
+        pagesAffected: removalReport.length,
+        details: removalReport
+    };
+};
+
+/**
  * Create threaded text frames across multiple pages (atomic operation)
  * Recommended for multi-page documents - creates and links in single operation
  */
@@ -387,6 +492,7 @@ module.exports = {
     getTextFrames,
     getTextFrameInfo,
     createTextFrame,
+    removeDuplicateFrames,
     createThreadedFrames,
     insertText,
     importTextFile,

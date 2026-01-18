@@ -255,6 +255,23 @@ def import_text_file(text_frame_index: int, file_path: str, page_index: int = 0,
     return sendCommand(command)
 
 @mcp.tool()
+def remove_duplicate_frames():
+    """
+    Removes duplicate and empty text frames caused by Primary Text Frame conflicts.
+
+    In facing pages mode, InDesign may create duplicate frames on pages.
+    This tool identifies and removes:
+    - Empty frames (no content)
+    - Duplicate frames (same position as other frames on same page)
+    - Master page frame duplicates
+
+    Returns:
+        Dict with removal status and count of frames removed per page
+    """
+    command = createCommand("removeDuplicateFrames", {})
+    return sendCommand(command)
+
+@mcp.tool()
 def create_threaded_frames(start_page: int, end_page: int, geometric_bounds: list = [54, 54, 594, 378]):
     """
     Creates text frames on multiple pages and links them atomically.
