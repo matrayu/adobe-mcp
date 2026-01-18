@@ -18,6 +18,37 @@ The system uses a 3-tier architecture:
 2. **Proxy Server** (Node.js) - WebSocket bridge between MCP and Adobe apps
 3. **UXP Plugins** (JavaScript) - Execute commands within Adobe applications
 
+## Optional: Workflow Skills
+
+In addition to raw MCP tools, this project includes **optional Claude Code skills** that provide high-level workflow automation:
+
+### adobe-indesign-assistant
+
+Expert guide for InDesign document production. Orchestrates 22 InDesign MCP tools for:
+- Book layout and manuscript formatting
+- Text overflow detection and threading
+- Style application and management
+- Print-ready PDF export with validation
+
+**Installation:**
+```bash
+ln -s $(pwd)/skills/adobe-indesign-assistant ~/.claude/skills/
+```
+
+**Usage:**
+```
+Format my 300-page manuscript for 6x9 print with chapter styles
+```
+
+See [skills/README.md](skills/README.md) for complete documentation.
+
+### When to Use Skills vs Raw MCP Tools
+
+- **Use Skills** - For common workflows with validation and error handling
+- **Use Raw MCP Tools** - For custom automation and precise control
+
+You can mix both approaches as needed.
+
 ## Installation
 
 ### Prerequisites
