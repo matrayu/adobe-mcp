@@ -430,14 +430,53 @@ def create_paragraph_style(style_name: str, properties: dict):
     """
     Creates a new paragraph style with specified properties.
 
+    Supports advanced typography including drop caps, keep options, spacing, etc.
+
     Args:
         style_name: Name for the new style
-        properties: Style properties dict (font, size, leading, color, etc.)
+        properties: Style properties dict including:
+            - font: Font family name
+            - fontStyle: "Regular", "Bold", "Italic", "Bold Italic"
+            - size: Point size
+            - leading: Line spacing
+            - spaceAfter: Space after paragraph
+            - spaceBefore: Space before paragraph
+            - dropCapLines: Number of lines for drop cap (e.g., 3)
+            - dropCapCharacters: Number of characters for drop cap (e.g., 1)
+            - keepWithNext: Keep paragraph with next (true/false)
+            - keepLinesTogether: Keep lines together (true/false)
+            - balanceRaggedLines: Balance ragged lines (true/false)
 
     Returns:
         Dict with creation status and properties applied
     """
     command = createCommand("createParagraphStyle", {
+        "styleName": style_name,
+        "properties": properties
+    })
+    return sendCommand(command)
+
+@mcp.tool()
+def create_character_style(style_name: str, properties: dict):
+    """
+    Creates a new character style with specified properties.
+
+    Character styles apply formatting to selected text within paragraphs.
+
+    Args:
+        style_name: Name for the new style
+        properties: Style properties dict including:
+            - font: Font family name
+            - fontStyle: "Regular", "Bold", "Italic", "Bold Italic"
+            - size: Point size
+            - fillColor: Color name (must exist in document)
+            - underline: true/false
+            - strikeThru: true/false
+
+    Returns:
+        Dict with creation status and properties applied
+    """
+    command = createCommand("createCharacterStyle", {
         "styleName": style_name,
         "properties": properties
     })

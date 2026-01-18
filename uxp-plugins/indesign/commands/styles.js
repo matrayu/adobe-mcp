@@ -220,9 +220,88 @@ const createParagraphStyle = async (command) => {
     if (props.leading) {
         newStyle.leading = props.leading;
     }
-    if (props.color) {
-        // Color handling would need proper color swatch creation
-        // For now, skip complex color application
+    if (props.fontStyle) {
+        newStyle.fontStyle = props.fontStyle;  // "Bold", "Italic", "Bold Italic", etc.
+    }
+    if (props.spaceAfter !== undefined) {
+        newStyle.spaceAfter = props.spaceAfter;
+    }
+    if (props.spaceBefore !== undefined) {
+        newStyle.spaceBefore = props.spaceBefore;
+    }
+
+    // Advanced typography properties
+    if (props.dropCapLines !== undefined) {
+        newStyle.dropCapLines = props.dropCapLines;
+    }
+    if (props.dropCapCharacters !== undefined) {
+        newStyle.dropCapCharacters = props.dropCapCharacters;
+    }
+    if (props.keepWithNext !== undefined) {
+        newStyle.keepWithNext = props.keepWithNext;
+    }
+    if (props.keepLinesTogether !== undefined) {
+        newStyle.keepLinesTogether = props.keepLinesTogether;
+    }
+    if (props.balanceRaggedLines !== undefined) {
+        newStyle.balanceRaggedLines = props.balanceRaggedLines;
+    }
+
+    return {
+        status: "SUCCESS",
+        styleName: options.styleName,
+        created: true,
+        propertiesApplied: props
+    };
+};
+
+/**
+ * Create a new character style
+ */
+const createCharacterStyle = async (command) => {
+    const options = command.options;
+    const doc = app.activeDocument;
+
+    if (!doc) {
+        throw new Error("No active document");
+    }
+
+    // Check if style already exists
+    const existingStyle = doc.characterStyles.item(options.styleName);
+    if (existingStyle.isValid) {
+        throw new Error(`Character style '${options.styleName}' already exists`);
+    }
+
+    // Create new character style
+    const newStyle = doc.characterStyles.add({ name: options.styleName });
+
+    // Apply properties
+    const props = options.properties;
+    if (props.font) {
+        try {
+            newStyle.appliedFont = app.fonts.item(props.font);
+        } catch (e) {
+            throw new Error(`Invalid font name: ${props.font}`);
+        }
+    }
+    if (props.fontStyle) {
+        newStyle.fontStyle = props.fontStyle;  // "Bold", "Italic", "Bold Italic"
+    }
+    if (props.size) {
+        newStyle.pointSize = props.size;
+    }
+    if (props.fillColor) {
+        try {
+            newStyle.fillColor = doc.colors.item(props.fillColor);
+        } catch (e) {
+            // Color doesn't exist, skip
+        }
+    }
+    if (props.underline !== undefined) {
+        newStyle.underline = props.underline;  // true/false
+    }
+    if (props.strikeThru !== undefined) {
+        newStyle.strikeThru = props.strikeThru;  // true/false
     }
 
     return {
@@ -238,5 +317,6 @@ module.exports = {
     getCharacterStyles,
     applyParagraphStyle,
     applyCharacterStyleToText,
-    createParagraphStyle
+    createParagraphStyle,
+    createCharacterStyle
 };

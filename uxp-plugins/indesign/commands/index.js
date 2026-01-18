@@ -117,6 +117,7 @@ const commandHandlers = {
     applyParagraphStyle: stylesCommands.applyParagraphStyle,
     applyCharacterStyleToText: stylesCommands.applyCharacterStyleToText,
     createParagraphStyle: stylesCommands.createParagraphStyle,
+    createCharacterStyle: stylesCommands.createCharacterStyle,
 
     // Page operations
     addPage: pagesCommands.addPage,
