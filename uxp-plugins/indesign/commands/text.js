@@ -238,8 +238,20 @@ const linkTextFrames = async (command) => {
     const sourceFrame = sourcePage.textFrames.item(options.sourceFrameIndex);
     const targetFrame = targetPage.textFrames.item(options.targetFrameIndex);
 
-    if (!sourceFrame.isValid || !targetFrame.isValid) {
-        throw new Error("Source or target frame not found");
+    // Enhanced error diagnostics
+    if (!sourceFrame.isValid) {
+        const sourceFrameCount = sourcePage.textFrames.length;
+        throw new Error(
+            `Source frame ${options.sourceFrameIndex} not found on page ${options.sourcePageIndex}. ` +
+            `Page has ${sourceFrameCount} frame(s).`
+        );
+    }
+    if (!targetFrame.isValid) {
+        const targetFrameCount = targetPage.textFrames.length;
+        throw new Error(
+            `Target frame ${options.targetFrameIndex} not found on page ${options.targetPageIndex}. ` +
+            `Page has ${targetFrameCount} frame(s).`
+        );
     }
 
     // Check for circular linking
