@@ -61,3 +61,6 @@ htmlcov/
 
 # UXP Developer Tool
 .debug/
+
+# Claude Code session tracking
+claude-progress.txt
