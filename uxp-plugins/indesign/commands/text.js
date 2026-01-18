@@ -449,6 +449,8 @@ const createThreadedFrames = async (command) => {
 
     // Create all frames and link them immediately in same execution
     for (let pageIndex = startPage; pageIndex <= endPage; pageIndex++) {
+        console.log(`[createThreadedFrames] Processing page ${pageIndex}`);
+
         const page = doc.pages.item(pageIndex);
         if (!page.isValid) {
             throw new Error(`Invalid page index: ${pageIndex}`);
@@ -457,6 +459,10 @@ const createThreadedFrames = async (command) => {
         // Validate bounds for this page
         validateBounds(bounds, page);
 
+        // Get frame count before creation for verification
+        const frameCountBefore = page.textFrames.length;
+        console.log(`[createThreadedFrames] Page ${pageIndex} has ${frameCountBefore} frames before creation`);
+
         // Create frame with full initialization
         const textFrame = page.textFrames.add();
         textFrame.geometricBounds = bounds;
@@ -464,19 +470,31 @@ const createThreadedFrames = async (command) => {
         textFrame.label = `ThreadedFrame_${pageIndex}`;
         textFrame.contents = "";  // Initialize
 
+        // Verify frame was created
+        const frameCountAfter = page.textFrames.length;
+        console.log(`[createThreadedFrames] Page ${pageIndex} has ${frameCountAfter} frames after creation`);
+
+        if (!textFrame.isValid) {
+            console.log(`[createThreadedFrames] ERROR: Frame on page ${pageIndex} became invalid!`);
+            throw new Error(`Frame creation failed on page ${pageIndex} - frame became invalid`);
+        }
+
         // Link to previous frame if exists
         if (previousFrame && previousFrame.isValid) {
+            console.log(`[createThreadedFrames] Linking page ${pageIndex-1} frame to page ${pageIndex} frame`);
             previousFrame.nextTextFrame = textFrame;
         }
 
         framesCreated.push({
             pageIndex: pageIndex,
-            frameIndex: 0,  // Always index 0 as we're creating first frame per page
+            frameIndex: frameCountBefore,  // Actual index where frame was added
             linkedToPrevious: previousFrame !== null
         });
 
         previousFrame = textFrame;
     }
+
+    console.log(`[createThreadedFrames] Loop completed. Created ${framesCreated.length} frames total.`);
 
     return {
         status: "SUCCESS",
