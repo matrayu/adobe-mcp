@@ -126,6 +126,11 @@ const createTextFrame = async (command) => {
     const textFrame = page.textFrames.add();
     textFrame.geometricBounds = options.geometricBounds;
 
+    // CRITICAL: Initialize frame with content to ensure persistence
+    // Adobe examples ALWAYS set content or properties immediately after creation
+    // Empty frames may not persist in InDesign's object model
+    textFrame.contents = "";  // Set empty string to initialize
+
     // Validate frame was created successfully
     if (!textFrame.isValid) {
         throw new Error("Frame creation failed - frame became invalid after creation");
