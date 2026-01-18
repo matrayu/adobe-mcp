@@ -126,10 +126,13 @@ const createTextFrame = async (command) => {
     const textFrame = page.textFrames.add();
     textFrame.geometricBounds = options.geometricBounds;
 
-    // CRITICAL: Initialize frame with content to ensure persistence
-    // Adobe examples ALWAYS set content or properties immediately after creation
-    // Empty frames may not persist in InDesign's object model
-    textFrame.contents = "";  // Set empty string to initialize
+    // CRITICAL: Initialize frame properties to ensure persistence
+    // Adobe examples ALWAYS set multiple properties immediately after creation
+    // Uninitialized frames may not persist in InDesign's object model
+    const { FirstBaseline } = require("indesign");
+    textFrame.textFramePreferences.firstBaselineOffset = FirstBaseline.leadingOffset;
+    textFrame.label = `Frame_p${options.pageIndex}_${frameCountBefore}`;  // Label for identification
+    textFrame.contents = "";  // Initialize content
 
     // Validate frame was created successfully
     if (!textFrame.isValid) {
