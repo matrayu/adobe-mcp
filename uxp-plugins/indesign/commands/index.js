@@ -103,6 +103,7 @@ const commandHandlers = {
     getTextFrames: textCommands.getTextFrames,
     getTextFrameInfo: textCommands.getTextFrameInfo,
     createTextFrame: textCommands.createTextFrame,
+    createThreadedFrames: textCommands.createThreadedFrames,
     insertText: textCommands.insertText,
     importTextFile: textCommands.importTextFile,
     linkTextFrames: textCommands.linkTextFrames,

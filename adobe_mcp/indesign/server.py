@@ -240,6 +240,29 @@ def import_text_file(text_frame_index: int, file_path: str, page_index: int = 0,
     return sendCommand(command)
 
 @mcp.tool()
+def create_threaded_frames(start_page: int, end_page: int, geometric_bounds: list = [54, 54, 594, 378]):
+    """
+    Creates text frames on multiple pages and links them atomically.
+
+    This is the recommended method for multi-page documents as it creates
+    and links frames in a single operation, preventing frame loss between operations.
+
+    Args:
+        start_page: Starting page index (0-based)
+        end_page: Ending page index (inclusive)
+        geometric_bounds: Frame bounds [top, left, bottom, right] in points
+
+    Returns:
+        Dict with created frames and linking status
+    """
+    command = createCommand("createThreadedFrames", {
+        "startPage": start_page,
+        "endPage": end_page,
+        "geometricBounds": geometric_bounds
+    })
+    return sendCommand(command)
+
+@mcp.tool()
 def link_text_frames(source_frame_index: int, target_frame_index: int, source_page_index: int = 0, target_page_index: int = 0):
     """
     Links two text frames for text flow (threading).

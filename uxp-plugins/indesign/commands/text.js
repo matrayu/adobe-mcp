@@ -318,10 +318,76 @@ const detectTextOverflow = async (command) => {
     };
 };
 
+/**
+ * Create threaded text frames across multiple pages (atomic operation)
+ * Recommended for multi-page documents - creates and links in single operation
+ */
+const createThreadedFrames = async (command) => {
+    const options = command.options;
+    const doc = app.activeDocument;
+
+    if (!doc) {
+        throw new Error("No active document");
+    }
+
+    const startPage = options.startPage;
+    const endPage = options.endPage;
+    const bounds = options.geometricBounds;
+
+    if (startPage < 0 || endPage < startPage) {
+        throw new Error(`Invalid page range: ${startPage} to ${endPage}`);
+    }
+
+    const { FirstBaseline } = require("indesign");
+    const framesCreated = [];
+    let previousFrame = null;
+
+    // Create all frames and link them immediately in same execution
+    for (let pageIndex = startPage; pageIndex <= endPage; pageIndex++) {
+        const page = doc.pages.item(pageIndex);
+        if (!page.isValid) {
+            throw new Error(`Invalid page index: ${pageIndex}`);
+        }
+
+        // Validate bounds for this page
+        validateBounds(bounds, page);
+
+        // Create frame with full initialization
+        const textFrame = page.textFrames.add();
+        textFrame.geometricBounds = bounds;
+        textFrame.textFramePreferences.firstBaselineOffset = FirstBaseline.leadingOffset;
+        textFrame.label = `ThreadedFrame_${pageIndex}`;
+        textFrame.contents = "";  // Initialize
+
+        // Link to previous frame if exists
+        if (previousFrame && previousFrame.isValid) {
+            previousFrame.nextTextFrame = textFrame;
+        }
+
+        framesCreated.push({
+            pageIndex: pageIndex,
+            frameIndex: 0,  // Always index 0 as we're creating first frame per page
+            linkedToPrevious: previousFrame !== null
+        });
+
+        previousFrame = textFrame;
+    }
+
+    return {
+        status: "SUCCESS",
+        framesCreated: framesCreated,
+        totalFrames: framesCreated.length,
+        threaded: true,
+        startPage: startPage,
+        endPage: endPage
+    };
+};
+
 module.exports = {
     getTextFrames,
     getTextFrameInfo,
     createTextFrame,
+    createThreadedFrames,
     insertText,
     importTextFile,
     linkTextFrames,
