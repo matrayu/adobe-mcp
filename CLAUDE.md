@@ -192,6 +192,49 @@ If port 3001 is already in use:
 2. Or modify `PROXY_URL` in MCP servers to use different port
 3. Update proxy server port in `proxy-server/proxy.js`
 
+## Known Limitations
+
+### InDesign: Frame Persistence with Facing Pages
+
+**CRITICAL:** Always use `facing_pages=False` for programmatic frame creation.
+
+**Issue:** InDesign UXP API `page.textFrames.add()` fails silently on even-numbered pages when facing pages mode is enabled.
+
+**Symptoms:**
+- Frames work on pages 0, 1, 3, 5, 7, 9, 11 (page 0 + odd pages)
+- Frames disappear immediately on pages 2, 4, 6, 8, 10 (even pages)
+- Console shows: "Page 2: 0 frames before → 0 frames after"
+- No error thrown - silent failure
+
+**Root Cause:**
+- Primary Text Frame (PTF) feature conflicts with programmatic frame creation
+- InDesign garbage collects frames that don't match PTF pattern
+- UXP API bug specific to facing pages + even page combination
+
+**Required Workaround:**
+```python
+# ALWAYS create with facing_pages=False
+create_document(
+    width=432, height=648, pages=12,
+    facing_pages=False,  # ← REQUIRED
+    margins={"top": 54, "bottom": 54, "left": 54, "right": 54}
+)
+
+# Then frames work on ALL pages
+create_threaded_frames(start_page=0, end_page=11)
+```
+
+**To Enable Facing Pages Display (After Content Complete):**
+1. Create document with `facing_pages=False`
+2. Create frames and add content programmatically
+3. Save document
+4. Manually enable in InDesign: File → Document Setup → Check "Facing Pages"
+
+**Bug Fix History:**
+- 2026-01-17 (f7eef95): Fixed parameter name mismatch (`pagesFacing` → `facingPages`)
+- Parameter now correctly applied, but facing pages mode still causes frame issues
+- Recommendation: Avoid facing_pages=True for programmatic workflows
+
 ## Key Files
 
 - `pyproject.toml` - Python package configuration and dependencies
