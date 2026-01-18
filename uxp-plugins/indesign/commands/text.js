@@ -527,6 +527,62 @@ const createThreadedFrames = async (command) => {
     };
 };
 
+/**
+ * Insert multiple formatted paragraphs with different styles
+ */
+const insertFormattedParagraphs = async (command) => {
+    const options = command.options;
+    const frame = getTextFrame(options.pageIndex, options.frameIndex);
+    const doc = app.activeDocument;
+
+    if (!doc) {
+        throw new Error("No active document");
+    }
+
+    const paragraphs = options.paragraphs;
+    let textContent = "";
+    let paragraphCount = 0;
+
+    // Build complete text with paragraph breaks
+    for (let i = 0; i < paragraphs.length; i++) {
+        textContent += paragraphs[i].text;
+        if (i < paragraphs.length - 1) {
+            textContent += "\r";  // Paragraph break
+        }
+        paragraphCount++;
+    }
+
+    // Insert all text at once
+    frame.contents = textContent;
+
+    // Apply styles to each paragraph
+    const frameParagraphs = frame.paragraphs.everyItem().getElements();
+
+    for (let i = 0; i < paragraphs.length && i < frameParagraphs.length; i++) {
+        const styleName = paragraphs[i].style;
+        const style = doc.paragraphStyles.item(styleName);
+
+        if (style.isValid) {
+            frameParagraphs[i].applyParagraphStyle(style, true);
+        } else {
+            console.log(`Warning: Style '${styleName}' not found for paragraph ${i}`);
+        }
+    }
+
+    // Check for overflow
+    const overflow = checkOverflow(frame);
+
+    return {
+        status: "SUCCESS",
+        frameIndex: options.frameIndex,
+        pageIndex: options.pageIndex,
+        paragraphsInserted: paragraphCount,
+        charactersInserted: textContent.length,
+        overflow: overflow.hasOverflow,
+        overflowCharacterCount: overflow.overflowCount
+    };
+};
+
 module.exports = {
     getTextFrames,
     getTextFrameInfo,
@@ -534,6 +590,7 @@ module.exports = {
     removeDuplicateFrames,
     createThreadedFrames,
     insertText,
+    insertFormattedParagraphs,
     importTextFile,
     linkTextFrames,
     getTextContent,

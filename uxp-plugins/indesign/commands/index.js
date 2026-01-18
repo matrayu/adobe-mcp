@@ -30,6 +30,7 @@ const stylesCommands = require("./styles");
 const pagesCommands = require("./pages");
 const imagesCommands = require("./images");
 const exportCommands = require("./export");
+const masterCommands = require("./master");
 
 
 const createDocument = async (command) => {
@@ -117,6 +118,7 @@ const commandHandlers = {
     removeDuplicateFrames: textCommands.removeDuplicateFrames,
     createThreadedFrames: textCommands.createThreadedFrames,
     insertText: textCommands.insertText,
+    insertFormattedParagraphs: textCommands.insertFormattedParagraphs,
     importTextFile: textCommands.importTextFile,
     linkTextFrames: textCommands.linkTextFrames,
     getTextContent: textCommands.getTextContent,
@@ -132,6 +134,10 @@ const commandHandlers = {
 
     // Page operations
     addPage: pagesCommands.addPage,
+
+    // Master page operations
+    addPageNumbers: masterCommands.addPageNumbers,
+    addRunningHeader: masterCommands.addRunningHeader,
 
     // Image operations
     placeImage: imagesCommands.placeImage,
