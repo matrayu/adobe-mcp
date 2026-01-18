@@ -76,7 +76,7 @@ def create_document(
         "margins":margins,
         "columns":columns,
         "pagesPerDocument":pages,
-        "pagesFacing":facing_pages
+        "facingPages":facing_pages  # Fixed: was pagesFacing, must be facingPages
     })
 
     return sendCommand(command)

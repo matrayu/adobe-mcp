@@ -483,18 +483,10 @@ const createThreadedFrames = async (command) => {
         const frameCountBefore = page.textFrames.length;
         console.log(`[createThreadedFrames] Page ${pageIndex} has ${frameCountBefore} frames before creation`);
 
-        // WORKAROUND: Create frame at document level, then move to page
-        // page.textFrames.add() fails silently on even pages (InDesign UXP bug)
-        const textFrame = doc.textFrames.add();
-        textFrame.itemLayer = page.itemLayer;  // Assign to page's layer
+        // Create frame directly on page
+        // Note: This may fail on even pages with facing_pages=true due to InDesign bug
+        const textFrame = page.textFrames.add();
         textFrame.geometricBounds = bounds;
-
-        // Move frame to specific page by adjusting bounds relative to page
-        // Need to account for page position in spread
-        const pageY = page.bounds[0];
-        const pageX = page.bounds[1];
-        textFrame.move([pageY, pageX]);
-
         textFrame.textFramePreferences.firstBaselineOffset = FirstBaseline.leadingOffset;
         textFrame.label = `ThreadedFrame_${pageIndex}`;
         textFrame.contents = "";  // Initialize
