@@ -53,6 +53,21 @@ def create_document(
     facing_pages:bool = False,
     columns:dict = {"count":1, "gutter":12},
     margins:dict = {"top":36, "bottom":36, "left":36, "right":36}):
+    """
+    Creates a new InDesign document.
+
+    WARNING: facing_pages=True may cause frame persistence issues on even-numbered pages
+    due to Primary Text Frame auto-creation. For programmatic frame creation,
+    use facing_pages=False.
+
+    Args:
+        width: Page width in pixels/points
+        height: Page height in pixels/points
+        pages: Number of pages to create
+        facing_pages: Enable facing pages mode (use False for programmatic control)
+        columns: Column configuration dict
+        margins: Margin configuration dict
+    """
 
     command = createCommand("createDocument", {
         "intent":"WEB_INTENT",
