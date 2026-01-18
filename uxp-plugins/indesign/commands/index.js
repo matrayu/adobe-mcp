@@ -21,9 +21,15 @@
  * SOFTWARE.
  */
 
-//const fs = require("uxp").storage.localFileSystem;
-//const openfs = require('fs')
 const {app, DocumentIntentOptions} = require("indesign");
+
+// Import all command modules
+const coreCommands = require("./core");
+const textCommands = require("./text");
+const stylesCommands = require("./styles");
+const pagesCommands = require("./pages");
+const imagesCommands = require("./images");
+const exportCommands = require("./export");
 
 
 const createDocument = async (command) => {
@@ -83,7 +89,42 @@ const parseAndRouteCommand = async (command) => {
 
 
 const commandHandlers = {
-    createDocument
+    // Original command
+    createDocument,
+
+    // Core document operations
+    openDocument: coreCommands.openDocument,
+    saveDocument: coreCommands.saveDocument,
+    saveDocumentAs: coreCommands.saveDocumentAs,
+    closeDocument: coreCommands.closeDocument,
+    getDocumentInfo: coreCommands.getDocumentInfo,
+
+    // Text operations
+    getTextFrames: textCommands.getTextFrames,
+    getTextFrameInfo: textCommands.getTextFrameInfo,
+    createTextFrame: textCommands.createTextFrame,
+    insertText: textCommands.insertText,
+    importTextFile: textCommands.importTextFile,
+    linkTextFrames: textCommands.linkTextFrames,
+    getTextContent: textCommands.getTextContent,
+    detectTextOverflow: textCommands.detectTextOverflow,
+
+    // Style operations
+    getParagraphStyles: stylesCommands.getParagraphStyles,
+    getCharacterStyles: stylesCommands.getCharacterStyles,
+    applyParagraphStyle: stylesCommands.applyParagraphStyle,
+    applyCharacterStyleToText: stylesCommands.applyCharacterStyleToText,
+    createParagraphStyle: stylesCommands.createParagraphStyle,
+
+    // Page operations
+    addPage: pagesCommands.addPage,
+
+    // Image operations
+    placeImage: imagesCommands.placeImage,
+
+    // Export operations
+    getPdfExportPresets: exportCommands.getPdfExportPresets,
+    exportPdf: exportCommands.exportPdf
 };
 
 
