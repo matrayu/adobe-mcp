@@ -107,6 +107,8 @@ const createTextFrame = async (command) => {
     const options = command.options;
     const doc = app.activeDocument;
 
+    console.log(`[createTextFrame] Starting for page ${options.pageIndex}`);
+
     if (!doc) {
         throw new Error("No active document");
     }
@@ -121,6 +123,7 @@ const createTextFrame = async (command) => {
 
     // Get frame count BEFORE adding new frame
     const frameCountBefore = page.textFrames.length;
+    console.log(`[createTextFrame] Page ${options.pageIndex}: ${frameCountBefore} frames before`);
 
     // Create frame (InDesign appends to end of collection)
     const textFrame = page.textFrames.add();
@@ -134,10 +137,27 @@ const createTextFrame = async (command) => {
     textFrame.label = `Frame_p${options.pageIndex}_${frameCountBefore}`;  // Label for identification
     textFrame.contents = "";  // Initialize content
 
+    // Check frame count AFTER creation
+    const frameCountAfter = page.textFrames.length;
+    console.log(`[createTextFrame] Page ${options.pageIndex}: ${frameCountAfter} frames after`);
+
     // Validate frame was created successfully
     if (!textFrame.isValid) {
+        console.log(`[createTextFrame] ERROR: Frame invalid on page ${options.pageIndex}`);
         throw new Error("Frame creation failed - frame became invalid after creation");
     }
+
+    // EXPERIMENTAL: Force document operation to commit frame
+    try {
+        await doc.save();
+        console.log(`[createTextFrame] Document saved after frame creation on page ${options.pageIndex}`);
+    } catch (e) {
+        console.log(`[createTextFrame] Save failed: ${e.message}`);
+    }
+
+    // Re-check frame count after save
+    const frameCountFinal = page.textFrames.length;
+    console.log(`[createTextFrame] Page ${options.pageIndex}: ${frameCountFinal} frames after save`);
 
     // The new frame's index is the previous count (0-based, appended to end)
     // Adobe's documentation pattern: trust the returned reference, don't re-verify
