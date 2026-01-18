@@ -22,7 +22,7 @@
  */
 
 const { app, ExportFormat, PageRange } = require("indesign");
-const { getFileEntry } = require("./utils");
+const { createFileEntry } = require("./utils");
 
 /**
  * Get available PDF export presets
@@ -68,8 +68,8 @@ const exportPdf = async (command) => {
         app.pdfExportPreferences.pageRange = PageRange.ALL_PAGES;
     }
 
-    // Export
-    const file = await getFileEntry(options.filePath);
+    // Export - use createFileEntry to handle file creation
+    const file = await createFileEntry(options.filePath);
     await doc.exportFile(ExportFormat.PDF_TYPE, file, false, preset);
 
     const fileInfo = await file.getMetadata();

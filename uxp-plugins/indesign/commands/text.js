@@ -119,12 +119,34 @@ const createTextFrame = async (command) => {
     // Validate bounds
     validateBounds(options.geometricBounds, page);
 
+    // Create frame
     const textFrame = page.textFrames.add();
     textFrame.geometricBounds = options.geometricBounds;
 
-    // Get the index of the newly created frame
+    // CRITICAL FIX: Ensure frame is committed to InDesign's object model
+    // Force a layout refresh to commit the frame before returning
+    try {
+        if (doc.layoutWindows && doc.layoutWindows.length > 0) {
+            const currentZoom = doc.layoutWindows[0].zoomPercentage;
+            doc.layoutWindows[0].zoomPercentage = currentZoom;  // Forces refresh
+        }
+    } catch (e) {
+        // Layout window operations may not be available in all contexts
+        // Continue anyway - frame should still be valid
+    }
+
+    // Validate frame persists after creation
+    if (!textFrame.isValid) {
+        throw new Error("Frame creation failed - frame became invalid after creation");
+    }
+
+    // Get the index AFTER ensuring frame is committed
     const frames = page.textFrames.everyItem().getElements();
     const frameIndex = frames.indexOf(textFrame);
+
+    if (frameIndex === -1) {
+        throw new Error("Frame created but not found in page collection - layout refresh may be needed");
+    }
 
     return {
         status: "SUCCESS",

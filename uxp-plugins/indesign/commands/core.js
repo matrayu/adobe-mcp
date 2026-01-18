@@ -22,7 +22,7 @@
  */
 
 const { app, SaveOptions } = require("indesign");
-const { getFileEntry } = require("./utils");
+const { getFileEntry, createFileEntry } = require("./utils");
 
 /**
  * Open an InDesign document or template
@@ -78,7 +78,8 @@ const saveDocumentAs = async (command) => {
         throw new Error("No active document");
     }
 
-    const file = await getFileEntry(options.filePath);
+    // Use createFileEntry to handle file creation
+    const file = await createFileEntry(options.filePath);
     await doc.save(file);
 
     const fileInfo = await file.getMetadata();

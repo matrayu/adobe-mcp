@@ -24,7 +24,7 @@
 const { app } = require("indesign");
 
 /**
- * Get file entry from absolute path
+ * Get file entry from absolute path (for reading existing files)
  * @param {string} filePath - Absolute file path
  * @returns {Promise<FileEntry>} File entry object
  */
@@ -34,6 +34,33 @@ async function getFileEntry(filePath) {
         return await fs.getEntryWithUrl("file:" + filePath);
     } catch (e) {
         throw new Error(`File not found or inaccessible: ${filePath}`);
+    }
+}
+
+/**
+ * Create a file entry for writing (creates file if doesn't exist)
+ * @param {string} filePath - Absolute file path
+ * @returns {Promise<FileEntry>} File entry object ready for writing
+ */
+async function createFileEntry(filePath) {
+    const fs = require('uxp').storage.localFileSystem;
+    const openfs = require('fs');
+
+    try {
+        // First, try to get existing file
+        return await fs.getEntryWithUrl("file:" + filePath);
+    } catch (e) {
+        // File doesn't exist - create it
+        try {
+            const url = `file:${filePath}`;
+            const fd = await openfs.open(url, "w");  // Create empty file
+            await openfs.close(fd);
+
+            // Now get the entry for the newly created file
+            return await fs.getEntryWithUrl(url);
+        } catch (createError) {
+            throw new Error(`Cannot create file at: ${filePath} - ${createError.message}`);
+        }
     }
 }
 
@@ -140,6 +167,7 @@ function validateBounds(bounds, page) {
 
 module.exports = {
     getFileEntry,
+    createFileEntry,
     getTextFrame,
     checkOverflow,
     parseParagraphRange,
