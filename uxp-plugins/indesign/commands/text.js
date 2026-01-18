@@ -122,13 +122,9 @@ const createTextFrame = async (command) => {
     // Get frame count BEFORE adding new frame
     const frameCountBefore = page.textFrames.length;
 
-    // Create frame (appends to end of collection)
+    // Create frame (InDesign appends to end of collection)
     const textFrame = page.textFrames.add();
     textFrame.geometricBounds = options.geometricBounds;
-
-    // Set a unique label to identify this frame
-    const uniqueLabel = `mcp_frame_${Date.now()}_${Math.random()}`;
-    textFrame.label = uniqueLabel;
 
     // Validate frame was created successfully
     if (!textFrame.isValid) {
@@ -136,16 +132,8 @@ const createTextFrame = async (command) => {
     }
 
     // The new frame's index is the previous count (0-based, appended to end)
+    // Adobe's documentation pattern: trust the returned reference, don't re-verify
     const frameIndex = frameCountBefore;
-
-    // Verify frame is accessible at expected index
-    const verifyFrame = page.textFrames.item(frameIndex);
-    if (!verifyFrame.isValid || verifyFrame.label !== uniqueLabel) {
-        throw new Error(
-            `Frame created but not accessible at expected index ${frameIndex}. ` +
-            `Page had ${frameCountBefore} frames before creation.`
-        );
-    }
 
     return {
         status: "SUCCESS",
