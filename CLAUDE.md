@@ -235,6 +235,45 @@ create_threaded_frames(start_page=0, end_page=11)
 - Parameter now correctly applied, but facing pages mode still causes frame issues
 - Recommendation: Avoid facing_pages=True for programmatic workflows
 
+### InDesign: Font Style Property Behavior
+
+**Issue:** Paragraph styles and character styles handle font variants differently.
+
+**Character Styles:**
+```python
+# ✅ Works - fontStyle property
+create_character_style("Italic", {
+    "font": "Adobe Garamond Pro",
+    "fontStyle": "Italic"  # ← Works for character styles
+})
+```
+
+**Paragraph Styles:**
+```python
+# ❌ Doesn't Work
+create_paragraph_style("Body Italic", {
+    "font": "Adobe Garamond Pro",
+    "fontStyle": "Italic"  # ← Ignored for paragraph styles
+})
+
+# ✅ Correct Approach - Include style in font name
+create_paragraph_style("Body Italic", {
+    "font": "Adobe Garamond Pro Italic"  # ← Full font name with variant
+})
+
+# ✅ Other examples
+create_paragraph_style("Body Bold", {
+    "font": "Adobe Garamond Pro Semibold"  # or "Bold"
+})
+```
+
+**Reason:** InDesign's paragraph style API treats font variants as separate fonts, not style properties. Character styles can override the base font's style, but paragraph styles must specify the complete font family + variant name.
+
+**How to Find Font Names:**
+1. Use `get_paragraph_styles()` to see existing styles
+2. Check font names in InDesign's Character panel
+3. Full font names are like: "Adobe Garamond Pro", "Adobe Garamond Pro Italic", "Adobe Garamond Pro Semibold"
+
 ## Key Files
 
 - `pyproject.toml` - Python package configuration and dependencies
