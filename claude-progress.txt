@@ -192,5 +192,39 @@ for i in range(12):
 
 **Repository:** https://github.com/matrayu/adobe-mcp
 **Branch:** main
-**Latest Commit:** 1c4abee
+**Latest Commit:** 753f747
 **Status:** ✅ Production-ready with documented workarounds
+
+---
+
+### 2026-01-17 - Session Summary: InDesign MCP Complete Expansion
+
+**Accomplished:**
+- ✅ Expanded InDesign MCP from 1 to 25 tools (24 new tools added)
+- ✅ Created adobe-indesign-assistant skill (1,400+ lines, 4/4 agent approval, timelessness 8/10)
+- ✅ Fixed critical facing_pages parameter bug (pagesFacing → facingPages) - root cause of all issues
+- ✅ Fixed file save/export operations (createFileEntry utility)
+- ✅ Added character style creation + drop cap support in paragraph styles
+- ✅ Comprehensive documentation: CLAUDE.md Known Limitations + skill references
+- ✅ All learnings stored in memre (personal context)
+
+**Files Changed:**
+- adobe_mcp/indesign/server.py - 25 MCP tools (98 lines added)
+- uxp-plugins/indesign/commands/*.js - Modular UXP structure (741 lines added across 9 files)
+- skills/adobe-indesign-assistant/ - Complete skill with workflows and scripts
+- CLAUDE.md - Known Limitations section (82 lines added)
+- claude-progress.txt - Full session history (196 lines)
+
+**Critical Bugs Fixed:**
+1. facing_pages parameter silently ignored (f7eef95) - **ROOT CAUSE**
+2. File save/export failures (d25a510)
+3. Frame initialization requirements (d1abf21, 846c069)
+4. Duplicate frame detection (036195d)
+
+**Next Session:**
+1. Test full memoir workflow end-to-end with facing_pages=False workaround
+2. Consider adding master page tools if user demand exists
+3. Add integration tests for InDesign (like Illustrator has)
+4. Create skills for other Adobe apps (Photoshop, Premiere, Illustrator)
+
+**Branch:** main | **Commits:** 17 commits (f188798 through 753f747) | **Pushed:** ✅
